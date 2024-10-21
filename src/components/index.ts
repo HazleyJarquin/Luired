@@ -5,3 +5,5 @@ export * from "./SignInButton";
 export * from "./Button";
 export * from "./SliderShowProduct";
 export * from "./Slider";
+export * from "./ProductCard";
+export * from "./AuthCheck";

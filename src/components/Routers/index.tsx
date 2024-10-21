@@ -11,6 +11,7 @@ import {
   UserProfile,
   WishList,
   ShoppingCart,
+  ProductDetail,
 } from "../../pages";
 import { AuthCheck } from "../AuthCheck";
 
@@ -23,6 +24,7 @@ export const Routers = () => {
         <Route element={<MainLayout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/product/:productName" element={<ProductDetail />} />
           <Route
             path="/user-profile/:userName"
             element={<AuthCheck WrappedComponent={UserProfile} />}

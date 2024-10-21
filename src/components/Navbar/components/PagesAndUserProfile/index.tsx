@@ -1,6 +1,7 @@
 import StoreOutlinedIcon from "@mui/icons-material/StoreOutlined";
 import {
   Avatar,
+  Badge,
   Box,
   Button,
   IconButton,
@@ -10,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useLocation } from "react-router-dom";
-import { useUserStore } from "../../../../store";
+import { useShoppingCartStore, useUserStore } from "../../../../store";
 import { SignInButton } from "../../../SignInButton";
 
 interface Props {
@@ -33,6 +34,8 @@ export const PagesAndUserProfile = ({
 }: Props) => {
   const { pathname } = useLocation();
   const { user } = useUserStore();
+
+  const { cart } = useShoppingCartStore();
   return (
     <>
       <StoreOutlinedIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
@@ -82,17 +85,33 @@ export const PagesAndUserProfile = ({
       >
         {favShoppingCart.map((fav) => (
           <Tooltip key={fav.title} title={fav.title}>
-            <IconButton
-              onClick={() => navigate(fav.href)}
-              sx={{
-                p: 0,
-                color: pathname === fav.href ? "black" : "gray",
-                backgroundColor: "transparent",
-                "&:hover": { backgroundColor: "transparent" },
-              }}
-            >
-              {fav.icon}
-            </IconButton>
+            {fav.title === "Shopping Cart" && cart.length > 0 ? (
+              <Badge badgeContent={cart.length} color="primary">
+                <IconButton
+                  onClick={() => navigate(fav.href)}
+                  sx={{
+                    p: 0,
+                    color: pathname === fav.href ? "black" : "gray",
+                    backgroundColor: "transparent",
+                    "&:hover": { backgroundColor: "transparent" },
+                  }}
+                >
+                  {fav.icon}
+                </IconButton>
+              </Badge>
+            ) : (
+              <IconButton
+                onClick={() => navigate(fav.href)}
+                sx={{
+                  p: 0,
+                  color: pathname === fav.href ? "black" : "gray",
+                  backgroundColor: "transparent",
+                  "&:hover": { backgroundColor: "transparent" },
+                }}
+              >
+                {fav.icon}
+              </IconButton>
+            )}
           </Tooltip>
         ))}
 

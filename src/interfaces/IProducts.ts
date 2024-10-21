@@ -1,9 +1,12 @@
 export interface IProducts {
-  id: number | string;
-  productName: string;
-  productDescription: string;
-  iso3Code: string;
-  productImages: string[];
-  productPrice: number;
-  productStock: number;
+  name: string;
+  fields: {
+    NombreProducto: { stringValue: string };
+    Iso3Code: { stringValue: string };
+    Precio: { stringValue: string };
+    Images: { arrayValue: { values: { stringValue: string }[] } };
+    Descripcion: { stringValue: string };
+    Categoria: { stringValue: string };
+    Stock: { integerValue: string };
+  };
 }
