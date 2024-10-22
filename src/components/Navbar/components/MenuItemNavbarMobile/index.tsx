@@ -1,6 +1,8 @@
 import MenuIcon from "@mui/icons-material/Menu";
 import StoreOutlinedIcon from "@mui/icons-material/StoreOutlined";
 import { Box, IconButton, Menu, MenuItem, Typography } from "@mui/material";
+import { FilterButton } from "../../../FilterButton";
+import { useFilterProducts } from "../../../../hooks";
 
 interface Props {
   handleOpenNavMenu: (event: React.MouseEvent<HTMLElement>) => void;
@@ -16,6 +18,11 @@ export const MenuItemNavbarMobile = ({
   navigate,
   pages,
 }: Props) => {
+  const handleFilterNavigate = (to: string) => {
+    navigate(`/products/category/${to}`);
+  };
+
+  const { productFilters } = useFilterProducts(handleFilterNavigate);
   return (
     <>
       <StoreOutlinedIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
@@ -34,14 +41,23 @@ export const MenuItemNavbarMobile = ({
         LUIRED
       </Typography>
 
-      <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: { xs: "flex", md: "none" },
+          alignItems: "center",
+        }}
+      >
         <IconButton
           size="large"
           aria-label="account of current user"
           aria-controls="menu-appbar"
           aria-haspopup="true"
           onClick={handleOpenNavMenu}
-          sx={{ backgroundColor: "transparent", color: "black" }}
+          sx={{
+            backgroundColor: "transparent",
+            color: "black",
+          }}
         >
           <MenuIcon />
         </IconButton>
@@ -59,13 +75,16 @@ export const MenuItemNavbarMobile = ({
           }}
           open={Boolean(anchorElNav)}
           onClose={handleCloseNavMenu}
-          sx={{ display: { xs: "block", md: "none" } }}
+          sx={{
+            display: { xs: "block", md: "none" },
+          }}
         >
           {pages.map((page) => (
             <MenuItem key={page.title} onClick={() => navigate(page.href)}>
               <Typography sx={{ textAlign: "center" }}>{page.title}</Typography>
             </MenuItem>
           ))}
+          <FilterButton filters={productFilters} />
         </Menu>
       </Box>
     </>

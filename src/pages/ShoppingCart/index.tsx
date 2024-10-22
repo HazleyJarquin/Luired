@@ -1,9 +1,11 @@
+import { Button } from "@mui/material";
 import { useShoppingCartStore } from "../../store";
 
 export const ShoppingCart = () => {
-  const { cart } = useShoppingCartStore();
+  const { cart, clearCart } = useShoppingCartStore();
   return (
     <div>
+      <Button onClick={clearCart}>Clear</Button>
       {cart.map((product) => (
         <div key={product.id}>
           <h3>{product.name}</h3>

@@ -1,11 +1,19 @@
+import { useParams } from "react-router-dom";
+import { useGetAllProducts } from "../../services";
+import { IProducts } from "../../interfaces";
 import { Box, Grid2 as Grid } from "@mui/material";
 import { ProductCard } from "../../components";
-import { IProducts } from "../../interfaces";
-import { useGetAllProducts } from "../../services";
 
-export const Products = () => {
+export const ProductCategory = () => {
+  const { productCategory } = useParams();
+
   const { data: productsData } = useGetAllProducts();
 
+  const filteredProducts = productsData?.documents?.filter(
+    (i: IProducts) =>
+      i.fields.Categoria.stringValue.toLowerCase() ===
+      productCategory?.toLowerCase()
+  );
   return (
     <Box
       sx={{
@@ -13,7 +21,7 @@ export const Products = () => {
       }}
     >
       <Grid container spacing={2}>
-        {productsData?.documents?.map((i: IProducts) => (
+        {filteredProducts?.map((i: IProducts) => (
           <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={i?.name}>
             <ProductCard
               images={i.fields.Images.arrayValue.values.map(

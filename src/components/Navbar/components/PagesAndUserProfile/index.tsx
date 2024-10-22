@@ -13,6 +13,9 @@ import {
 import { useLocation } from "react-router-dom";
 import { useShoppingCartStore, useUserStore } from "../../../../store";
 import { SignInButton } from "../../../SignInButton";
+import { FilterButton } from "../../../FilterButton";
+import React from "react";
+import { useFilterProducts } from "../../../../hooks";
 
 interface Props {
   navigate: (to: string) => void;
@@ -34,8 +37,14 @@ export const PagesAndUserProfile = ({
 }: Props) => {
   const { pathname } = useLocation();
   const { user } = useUserStore();
-
   const { cart } = useShoppingCartStore();
+
+  const handleFilterNavigate = (to: string) => {
+    navigate(`/products/category/${to}`);
+  };
+
+  const { productFilters } = useFilterProducts(handleFilterNavigate);
+
   return (
     <>
       <StoreOutlinedIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
@@ -73,6 +82,7 @@ export const PagesAndUserProfile = ({
             {page.title}
           </Button>
         ))}
+        <FilterButton filters={productFilters} />
       </Box>
       <Box
         sx={{
@@ -83,8 +93,8 @@ export const PagesAndUserProfile = ({
           gap: "1rem",
         }}
       >
-        {favShoppingCart.map((fav) => (
-          <Tooltip key={fav.title} title={fav.title}>
+        {favShoppingCart.map((fav, index) => (
+          <React.Fragment key={fav.title || index}>
             {fav.title === "Shopping Cart" && cart.length > 0 ? (
               <Badge badgeContent={cart.length} color="primary">
                 <IconButton
@@ -112,7 +122,7 @@ export const PagesAndUserProfile = ({
                 {fav.icon}
               </IconButton>
             )}
-          </Tooltip>
+          </React.Fragment>
         ))}
 
         {user ? (

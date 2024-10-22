@@ -1,12 +1,17 @@
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import {
   Card,
   CardActions,
   CardContent,
   CardMedia,
-  Button,
   Typography,
+  Snackbar,
+  SnackbarCloseReason,
+  Box,
+  IconButton,
+  Alert,
 } from "@mui/material";
-import { ShoppingCart } from "@mui/icons-material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -18,7 +23,7 @@ interface ProductCardProps {
   price: number;
   images: string[];
   iso3Code: string;
-  stock: number;
+  category: string;
 }
 
 export const ProductCard = ({
@@ -26,10 +31,11 @@ export const ProductCard = ({
   description,
   price,
   images,
-  stock,
+  category,
   iso3Code,
 }: ProductCardProps) => {
   const [displayImage, setDisplayImage] = useState(images[0]);
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
   const productToShoppingCart = {
@@ -43,52 +49,123 @@ export const ProductCard = ({
 
   const handleAddToCart = () => {
     addToCart(productToShoppingCart);
+    setOpen(true);
+  };
+
+  const handleClose = (
+    event: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpen(false);
   };
   return (
-    <Card
-      sx={{
-        maxWidth: "100%",
-        m: 2,
-        boxShadow: "rgba(0, 0, 0, 0.04) 0px 3px 5px",
-      }}
-    >
-      <CardMedia
-        component="img"
-        height="200"
-        image={displayImage}
-        sx={{ cursor: "pointer" }}
-        alt={productName}
-        onMouseEnter={() => setDisplayImage(images[1])}
-        onMouseLeave={() => setDisplayImage(images[0])}
-        onClick={() => navigate(`/product/${productName}`)}
-      />
-      <CardContent>
-        <Typography gutterBottom variant="h5" component="div">
-          {productName.length > 20
-            ? `${productName.slice(0, 20)} ...`
-            : productName}
-        </Typography>
-        <Typography height={50} variant="body2" color="text.secondary">
-          {description.length > 100
-            ? `${description.slice(0, 100)}...`
-            : description}
-        </Typography>
+    <>
+      <Snackbar
+        open={open}
+        autoHideDuration={3000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        color="success"
+        sx={{ mt: 8 }}
+      >
+        <Alert severity="success" variant="filled" sx={{ width: "100%" }}>
+          Producto: {productToShoppingCart.name} agregado al carrito
+        </Alert>
+      </Snackbar>
+      <Card
+        sx={{
+          maxWidth: "100%",
+          m: 2,
+          border: "1px solid #E0E0E0",
+          boxShadow: "none",
+          borderRadius: 6,
+          padding: 2,
+        }}
+      >
+        <CardMedia
+          component="img"
+          height="280"
+          image={displayImage}
+          sx={{
+            cursor: "pointer",
+            objectFit: "cover",
+            borderRadius: 4,
+            border: "1px solid #E0E0E0",
+          }}
+          alt={productName}
+          onMouseEnter={() => setDisplayImage(images[1])}
+          onMouseLeave={() => setDisplayImage(images[0])}
+          onClick={() => navigate(`/product/${productName}`)}
+        />
+        <CardContent sx={{ width: "100%" }}>
+          <Box
+            sx={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Typography gutterBottom variant="h6" component="div">
+              {productName.length > 19
+                ? `${productName.slice(0, 19)} ...`
+                : productName}
+            </Typography>
+            <Typography variant="h6" color="#28a745">
+              {iso3Code}
+              {price.toFixed(2)}
+            </Typography>
+          </Box>
 
-        <Typography height={20} variant="h6" color="primary" sx={{ mt: 2 }}>
-          {iso3Code}
-          {price.toFixed(2)}- {stock} in stock
-        </Typography>
-      </CardContent>
-      <CardActions sx={{ boxShadow: "none" }}>
-        <Button
-          variant="contained"
-          startIcon={<ShoppingCart />}
-          onClick={handleAddToCart}
-          fullWidth
+          <span
+            style={{
+              background: "#e9e0e3",
+              borderRadius: 4,
+              padding: 6,
+              color: "red",
+              fontSize: 12,
+            }}
+          >
+            {category}
+          </span>
+
+          <Typography mt={1} height={50} variant="body2" color="text.secondary">
+            {description.length > 100
+              ? `${description.slice(0, 100)}...`
+              : description}
+          </Typography>
+        </CardContent>
+        <CardActions
+          sx={{ boxShadow: "none", display: "flex", justifyContent: "end" }}
         >
-          Add to Cart
-        </Button>
-      </CardActions>
-    </Card>
+          <IconButton
+            onClick={handleAddToCart}
+            sx={{
+              background: "red",
+              "&:hover": {
+                backgroundColor: "#8B0000",
+              },
+            }}
+          >
+            <AddShoppingCartIcon />
+          </IconButton>
+          <IconButton
+            onClick={() => alert("proximamente")}
+            sx={{
+              background: "red",
+              "&:hover": {
+                backgroundColor: "#8B0000",
+              },
+            }}
+          >
+            <FavoriteBorderIcon />
+          </IconButton>
+        </CardActions>
+      </Card>
+    </>
   );
 };
