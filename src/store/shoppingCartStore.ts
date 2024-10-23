@@ -6,6 +6,10 @@ interface Product {
   name: string;
   price: number;
   quantity: number;
+  image: string;
+  stock: number;
+  total: number;
+  iso3Code: string;
 }
 
 interface CartState {
@@ -29,12 +33,16 @@ export const useShoppingCartStore = create<CartState>()(
             return {
               cart: state.cart.map((item) =>
                 item.id === product.id
-                  ? { ...item, quantity: item.quantity + 1 }
+                  ? {
+                      ...item,
+                      quantity: item.quantity + 1,
+                      total: (item.quantity + 1) * item.price,
+                    }
                   : item
               ),
             };
           }
-          return { cart: [...state.cart, { ...product, quantity: 1 }] };
+          return { cart: [...state.cart, { ...product }] };
         }),
       removeFromCart: (id) =>
         set((state) => ({
@@ -42,9 +50,13 @@ export const useShoppingCartStore = create<CartState>()(
         })),
       updateQuantity: (id, quantity) =>
         set((state) => ({
-          cart: state.cart.map((item) =>
-            item.id === id ? { ...item, quantity } : item
-          ),
+          cart: state.cart.map((item) => {
+            if (item.id === id) {
+              const newTotal = item.price * quantity;
+              return { ...item, quantity, total: newTotal };
+            }
+            return item;
+          }),
         })),
       clearCart: () => set({ cart: [] }),
     }),

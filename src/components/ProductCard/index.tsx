@@ -25,6 +25,7 @@ interface ProductCardProps {
   images: string[];
   iso3Code: string;
   category: string;
+  stock: number;
 }
 
 export const ProductCard = ({
@@ -34,6 +35,7 @@ export const ProductCard = ({
   images,
   category,
   iso3Code,
+  stock,
 }: ProductCardProps) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -43,6 +45,10 @@ export const ProductCard = ({
     price: price,
     quantity: 1,
     id: uuidv4(),
+    image: images[0],
+    stock: stock,
+    total: price * 1,
+    iso3Code: iso3Code,
   };
 
   const { addToCart } = useShoppingCartStore();

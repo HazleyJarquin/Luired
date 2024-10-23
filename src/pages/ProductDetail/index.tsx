@@ -19,6 +19,7 @@ export const ProductDetail = () => {
   const [open, setOpen] = useState(false);
   const { data: productsData } = useGetAllProducts();
   const { productName } = useParams();
+  const { addToCart } = useShoppingCartStore();
 
   const productByNameFound = productsData?.documents?.find(
     (product: IProducts) =>
@@ -33,14 +34,15 @@ export const ProductDetail = () => {
 
   const productToAddCartObject = {
     name: productByNameFound?.fields?.NombreProducto?.stringValue,
-    price: productByNameFound?.fields?.Precio?.stringValue,
+    price: Number(productByNameFound?.fields?.Precio?.stringValue),
     image:
       productByNameFound?.fields?.Images?.arrayValue?.values[0]?.stringValue,
     quantity: quantity,
     id: v44(),
+    stock: productByNameFound?.fields?.Stock?.integerValue,
+    total: Number(productByNameFound?.fields?.Precio?.stringValue) * quantity,
+    iso3Code: productByNameFound?.fields?.Iso3Code?.stringValue,
   };
-
-  const { addToCart } = useShoppingCartStore();
 
   const handleAddToCart = () => {
     setOpen(true);

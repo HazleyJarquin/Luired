@@ -24,6 +24,7 @@ export const Products = () => {
               iso3Code={i.fields.Iso3Code.stringValue}
               price={Number(i.fields.Precio.stringValue)}
               category={i.fields.Categoria.stringValue}
+              stock={Number(i.fields.Stock.integerValue)}
             />
           </Grid>
         ))}
