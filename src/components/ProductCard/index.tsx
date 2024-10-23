@@ -11,6 +11,7 @@ import {
   Box,
   IconButton,
   Alert,
+  Button,
 } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -34,7 +35,6 @@ export const ProductCard = ({
   category,
   iso3Code,
 }: ProductCardProps) => {
-  const [displayImage, setDisplayImage] = useState(images[0]);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -59,7 +59,6 @@ export const ProductCard = ({
     if (reason === "clickaway") {
       return;
     }
-
     setOpen(false);
   };
   return (
@@ -89,7 +88,7 @@ export const ProductCard = ({
         <CardMedia
           component="img"
           height="280"
-          image={displayImage}
+          image={images[0]}
           sx={{
             cursor: "pointer",
             objectFit: "cover",
@@ -97,8 +96,6 @@ export const ProductCard = ({
             border: "1px solid #E0E0E0",
           }}
           alt={productName}
-          onMouseEnter={() => setDisplayImage(images[1])}
-          onMouseLeave={() => setDisplayImage(images[0])}
           onClick={() => navigate(`/product/${productName}`)}
         />
         <CardContent sx={{ width: "100%" }}>
@@ -140,30 +137,46 @@ export const ProductCard = ({
           </Typography>
         </CardContent>
         <CardActions
-          sx={{ boxShadow: "none", display: "flex", justifyContent: "end" }}
+          sx={{
+            boxShadow: "none",
+            display: "flex",
+            justifyContent: "space-between",
+          }}
         >
-          <IconButton
-            onClick={handleAddToCart}
+          <Button onClick={() => navigate(`/product/${productName}`)}>
+            Ver más
+          </Button>
+          <Box
             sx={{
-              background: "red",
-              "&:hover": {
-                backgroundColor: "#8B0000",
-              },
+              display: "flex",
+              gap: "1rem",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
-            <AddShoppingCartIcon />
-          </IconButton>
-          <IconButton
-            onClick={() => alert("proximamente")}
-            sx={{
-              background: "red",
-              "&:hover": {
-                backgroundColor: "#8B0000",
-              },
-            }}
-          >
-            <FavoriteBorderIcon />
-          </IconButton>
+            <IconButton
+              onClick={handleAddToCart}
+              sx={{
+                background: "red",
+                "&:hover": {
+                  backgroundColor: "#8B0000",
+                },
+              }}
+            >
+              <AddShoppingCartIcon />
+            </IconButton>
+            <IconButton
+              onClick={() => alert("proximamente")}
+              sx={{
+                background: "red",
+                "&:hover": {
+                  backgroundColor: "#8B0000",
+                },
+              }}
+            >
+              <FavoriteBorderIcon />
+            </IconButton>
+          </Box>
         </CardActions>
       </Card>
     </>

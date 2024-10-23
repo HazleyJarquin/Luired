@@ -45,7 +45,7 @@ export const Slider = ({
         alignItems: "center",
       }}
     >
-      {images.map((image, index) => (
+      {images?.map((image, index) => (
         <SwiperSlide
           key={index}
           style={{ display: "flex", justifyContent: "center" }}

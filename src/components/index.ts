@@ -7,3 +7,5 @@ export * from "./Slider";
 export * from "./ProductCard";
 export * from "./AuthCheck";
 export * from "./FilterButton";
+export * from "./ProductNotFound";
+export * from "./QuantityButton";

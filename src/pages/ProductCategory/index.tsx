@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useGetAllProducts } from "../../services";
 import { IProducts } from "../../interfaces";
 import { Box, Grid2 as Grid } from "@mui/material";
-import { ProductCard } from "../../components";
+import { ProductCard, ProductNotFound } from "../../components";
 
 export const ProductCategory = () => {
   const { productCategory } = useParams();
@@ -14,6 +14,17 @@ export const ProductCategory = () => {
       i.fields.Categoria.stringValue.toLowerCase() ===
       productCategory?.toLowerCase()
   );
+
+  if (
+    filteredProducts?.every(
+      (i: IProducts) =>
+        i.fields.Categoria.stringValue.toLowerCase() !==
+        productCategory?.toLowerCase()
+    )
+  ) {
+    return <ProductNotFound />;
+  }
+
   return (
     <Box
       sx={{

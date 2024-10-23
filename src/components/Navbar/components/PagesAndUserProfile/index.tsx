@@ -15,7 +15,7 @@ import { useShoppingCartStore, useUserStore } from "../../../../store";
 import { SignInButton } from "../../../SignInButton";
 import { FilterButton } from "../../../FilterButton";
 import React from "react";
-import { useFilterProducts } from "../../../../hooks";
+import { useGetProductsCategory } from "../../../../services";
 
 interface Props {
   navigate: (to: string) => void;
@@ -39,11 +39,11 @@ export const PagesAndUserProfile = ({
   const { user } = useUserStore();
   const { cart } = useShoppingCartStore();
 
+  const { data: productFilters } = useGetProductsCategory();
+
   const handleFilterNavigate = (to: string) => {
     navigate(`/products/category/${to}`);
   };
-
-  const { productFilters } = useFilterProducts(handleFilterNavigate);
 
   return (
     <>
@@ -82,7 +82,10 @@ export const PagesAndUserProfile = ({
             {page.title}
           </Button>
         ))}
-        <FilterButton filters={productFilters} />
+        <FilterButton
+          filters={productFilters}
+          handleNavigate={handleFilterNavigate}
+        />
       </Box>
       <Box
         sx={{

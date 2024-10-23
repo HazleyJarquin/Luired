@@ -2,7 +2,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import StoreOutlinedIcon from "@mui/icons-material/StoreOutlined";
 import { Box, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import { FilterButton } from "../../../FilterButton";
-import { useFilterProducts } from "../../../../hooks";
+import { useGetProductsCategory } from "../../../../services";
 
 interface Props {
   handleOpenNavMenu: (event: React.MouseEvent<HTMLElement>) => void;
@@ -22,7 +22,7 @@ export const MenuItemNavbarMobile = ({
     navigate(`/products/category/${to}`);
   };
 
-  const { productFilters } = useFilterProducts(handleFilterNavigate);
+  const { data: productFilters } = useGetProductsCategory();
   return (
     <>
       <StoreOutlinedIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
@@ -84,7 +84,10 @@ export const MenuItemNavbarMobile = ({
               <Typography sx={{ textAlign: "center" }}>{page.title}</Typography>
             </MenuItem>
           ))}
-          <FilterButton filters={productFilters} />
+          <FilterButton
+            filters={productFilters}
+            handleNavigate={handleFilterNavigate}
+          />
         </Menu>
       </Box>
     </>

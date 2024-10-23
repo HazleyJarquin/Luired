@@ -4,17 +4,14 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-
-interface Actions {
-  title: string;
-  action: () => void;
-}
+import { IProductsCategory } from "../../interfaces";
 
 interface Props {
-  filters: Actions[];
+  filters: IProductsCategory[];
+  handleNavigate: (path: string) => void;
 }
 
-export const FilterButton = ({ filters }: Props) => {
+export const FilterButton = ({ filters, handleNavigate }: Props) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -24,8 +21,8 @@ export const FilterButton = ({ filters }: Props) => {
     setAnchorEl(null);
   };
 
-  const handleCloseWhenClickTheAction = (action: () => void) => {
-    action();
+  const handleCloseWhenClickTheAction = (category: string) => {
+    handleNavigate(category);
     handleClose();
   };
 
@@ -61,12 +58,14 @@ export const FilterButton = ({ filters }: Props) => {
           "aria-labelledby": "basic-button",
         }}
       >
-        {filters.map((filter) => (
+        {filters?.map((filter) => (
           <MenuItem
-            key={filter.title}
-            onClick={() => handleCloseWhenClickTheAction(filter.action)}
+            key={filter.fields.Titulo.stringValue}
+            onClick={() =>
+              handleCloseWhenClickTheAction(filter.fields.Categoria.stringValue)
+            }
           >
-            {filter.title}
+            {filter.fields.Titulo.stringValue}
           </MenuItem>
         ))}
       </Menu>
