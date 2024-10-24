@@ -23,49 +23,53 @@ export const BillGenerator = ({ products, totalToPay }: Props) => {
 
   const generatePDF = async () => {
     const doc = new jsPDF();
-    doc.setFontSize(22);
-    doc.text("Factura", 10, 20);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("Tienda Luired", 105, 10, { align: "center" });
+    doc.text("Factura de Compra", 105, 20, { align: "center" });
+
     doc.setFontSize(12);
-    doc.text("Productos:", 10, 35);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Cliente: ${user?.displayName}`, 10, 40);
+    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 10, 50);
+
+    const startX = 10;
+    const startY = 70;
+    const lineHeight = 10;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Producto", startX, startY);
+    doc.text("Cantidad", startX + 80, startY);
+    doc.text("Precio Unitario", startX + 120, startY);
+    doc.text("Total", startX + 160, startY);
     doc.setLineWidth(0.5);
-    doc.line(10, 37, 200, 37);
+    doc.line(startX, startY + 2, 200, startY + 2);
 
-    const margin = 10;
-    const productWidth = 90;
-    let yPosition = 45;
+    let currentY = startY + lineHeight;
+    doc.setFont("helvetica", "normal");
 
-    // Generar el PDF con productos
-    const promises: Promise<void>[] = products.map(async (item, index) => {
-      const imgData = await getBase64Image(item.image);
-      const column = index % 2;
-      const xPosition = 10 + column * (productWidth + margin);
-
-      doc.addImage(imgData, "JPEG", xPosition, yPosition, 30, 30);
-      doc.text(`Producto: ${item.name}`, xPosition + 40, yPosition + 10);
-      doc.text(`Cantidad: ${item.quantity}`, xPosition + 40, yPosition + 20);
+    products.forEach((product) => {
+      doc.text(product.name, startX, currentY);
+      doc.text(`${product.quantity}`, startX + 80, currentY);
+      doc.text(`$${product.price.toFixed(2)}`, startX + 120, currentY);
       doc.text(
-        `Precio: $${item.price.toFixed(2)}`,
-        xPosition + 40,
-        yPosition + 30
+        `$${(product.price * product.quantity).toFixed(2)}`,
+        startX + 160,
+        currentY
       );
-
-      doc.setLineWidth(0.5);
-      doc.line(10, yPosition + 35, 200, yPosition + 35);
-
-      yPosition += index % 2 === 1 ? 40 : 0;
+      currentY += lineHeight;
     });
 
-    await Promise.all(promises);
+    doc.setFont("helvetica", "bold");
+    doc.text(
+      `Total a Pagar: $${totalToPay.toFixed(2)}`,
+      startX,
+      currentY + lineHeight
+    );
 
-    doc.setFontSize(16);
-    doc.text(`Total a pagar: $${totalToPay.toFixed(2)}`, 10, yPosition + 10);
-    doc.setLineWidth(0.5);
-    doc.line(10, yPosition + 15, 200, yPosition + 15);
-
-    // Convertir el PDF a blob
     const pdfBlob = doc.output("blob");
 
-    // Subir el PDF a Firebase Storage
     const storage = getStorage();
     const storageRef = ref(
       storage,
@@ -73,26 +77,12 @@ export const BillGenerator = ({ products, totalToPay }: Props) => {
     );
     await uploadBytes(storageRef, pdfBlob);
 
-    // Obtener el URL de descarga
     const downloadURL = await getDownloadURL(storageRef);
 
-    // Enviar el enlace de la factura a WhatsApp
     sendToWhatsApp(
       import.meta.env.VITE_WHATSAPP_NUMBER,
-      `Hola! me gustaría comprar estos productos🛒. Te dejo acá mi factura✅: ${downloadURL}`
+      `Hola! me gustaría comprar estos productos🛒. Te dejo acá mi factura✅: \n\n${downloadURL}`
     );
-  };
-
-  const getBase64Image = async (url: string): Promise<string> => {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        resolve(reader.result as string);
-      };
-      reader.readAsDataURL(blob);
-    });
   };
 
   const sendToWhatsApp = (phoneNumber: string, message: string) => {
