@@ -10,3 +10,4 @@ export * from "./FilterButton";
 export * from "./ProductNotFound";
 export * from "./QuantityButton";
 export * from "./BillGenerator";
+export * from "./CheckboxGroup";

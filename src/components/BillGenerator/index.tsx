@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { jsPDF } from "jspdf";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { useUserStore } from "../../store";
+import { useUserAddressStore, useUserStore } from "../../store";
 
 interface Products {
   name: string;
@@ -20,6 +20,7 @@ interface Props {
 
 export const BillGenerator = ({ products, totalToPay }: Props) => {
   const { user } = useUserStore();
+  const { address } = useUserAddressStore();
 
   const generatePDF = async () => {
     const doc = new jsPDF();
@@ -33,6 +34,7 @@ export const BillGenerator = ({ products, totalToPay }: Props) => {
     doc.setFont("helvetica", "normal");
     doc.text(`Cliente: ${user?.displayName}`, 10, 50);
     doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 10, 60);
+    doc.text(`Dirección: ${address}`, 10, 70);
 
     const startX = 10;
     let currentY = 80;

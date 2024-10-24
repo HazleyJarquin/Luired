@@ -1,11 +1,25 @@
 import { Box, Typography } from "@mui/material";
-import { useShoppingCartStore, useUserStore } from "../../store";
+import {
+  useShoppingCartStore,
+  useUserAddressStore,
+  useUserStore,
+} from "../../store";
 import { ProductBanner } from "./components/ProductBanner";
-import { BillGenerator } from "../../components";
+import { BillGenerator, CheckboxGroup } from "../../components";
+import { useGetUserAddress } from "../../services";
+import { IUserAddress } from "../../interfaces";
 
 export const ShoppingCart = () => {
+  const { address: userAddressToSave, setAdress } = useUserAddressStore();
+
+  const handleChange = (newSelection: string) => {
+    setAdress(newSelection);
+  };
+
   const { cart } = useShoppingCartStore();
   const { user } = useUserStore();
+
+  const { data: userAddress } = useGetUserAddress();
   const totalToPay = cart.reduce((acc, p) => acc + p.total, 0).toFixed(2);
 
   if (!cart.length) {
@@ -15,6 +29,12 @@ export const ShoppingCart = () => {
       </Box>
     );
   }
+
+  const filteredAddressByUserId = userAddress?.filter(
+    (address: IUserAddress) =>
+      address.fields.IdUsuario.stringValue === user?.uid
+  );
+
   return (
     <Box
       sx={{
@@ -60,6 +80,24 @@ export const ShoppingCart = () => {
         <Typography>Nombre Completo: {user?.displayName}</Typography>
         <Typography>Email: {user?.email}</Typography>
         <Typography>Total: $ {totalToPay}</Typography>
+
+        {filteredAddressByUserId?.map((address: IUserAddress) => (
+          <Box key={address.name}>
+            <Typography>Direcciones:</Typography>
+            {address.fields.Direcciones.arrayValue.values.map(
+              (direccion: { stringValue: string }, index: number) => (
+                <CheckboxGroup
+                  key={index}
+                  option={direccion.stringValue}
+                  onChange={handleChange}
+                  selectedCheckbox={userAddressToSave}
+                />
+              )
+            )}
+            <Typography>Ciudad: {address.fields.Ciudad.stringValue}</Typography>
+            <Typography>Estado: {address.fields.Estado.stringValue}</Typography>
+          </Box>
+        ))}
 
         <BillGenerator products={cart} totalToPay={Number(totalToPay)} />
       </Box>
