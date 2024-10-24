@@ -20,6 +20,7 @@ interface Props {
 
 export const BillGenerator = ({ products, totalToPay }: Props) => {
   const { user } = useUserStore();
+
   const generatePDF = async () => {
     const doc = new jsPDF();
     doc.setFontSize(22);
@@ -31,9 +32,9 @@ export const BillGenerator = ({ products, totalToPay }: Props) => {
 
     const margin = 10;
     const productWidth = 90;
-
     let yPosition = 45;
 
+    // Generar el PDF con productos
     const promises: Promise<void>[] = products.map(async (item, index) => {
       const imgData = await getBase64Image(item.image);
       const column = index % 2;
@@ -61,8 +62,10 @@ export const BillGenerator = ({ products, totalToPay }: Props) => {
     doc.setLineWidth(0.5);
     doc.line(10, yPosition + 15, 200, yPosition + 15);
 
+    // Convertir el PDF a blob
     const pdfBlob = doc.output("blob");
 
+    // Subir el PDF a Firebase Storage
     const storage = getStorage();
     const storageRef = ref(
       storage,
@@ -70,11 +73,13 @@ export const BillGenerator = ({ products, totalToPay }: Props) => {
     );
     await uploadBytes(storageRef, pdfBlob);
 
+    // Obtener el URL de descarga
     const downloadURL = await getDownloadURL(storageRef);
 
+    // Enviar el enlace de la factura a WhatsApp
     sendToWhatsApp(
       import.meta.env.VITE_WHATSAPP_NUMBER,
-      `Hola! me gustaria comprar estos productos🛒. Te dejo acá mi factura✅: ${downloadURL}`
+      `Hola! me gustaría comprar estos productos🛒. Te dejo acá mi factura✅: ${downloadURL}`
     );
   };
 
