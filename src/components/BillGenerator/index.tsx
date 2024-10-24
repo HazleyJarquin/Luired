@@ -108,7 +108,7 @@ export const BillGenerator = ({ products, totalToPay }: Props) => {
     const downloadURL = await getDownloadURL(storageRef);
     sendToWhatsApp(
       import.meta.env.VITE_WHATSAPP_NUMBER,
-      `Te dejo la factura: ${downloadURL}`
+      `\uD83C\uDF1F ¡Hola! \uD83D\uDC4B Estos son mis productos para comprar: \uD83D\uDECD✨ \n\n ${downloadURL}`
     );
   };
 
