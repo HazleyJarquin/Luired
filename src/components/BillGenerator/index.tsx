@@ -1,5 +1,7 @@
 import { Button } from "@mui/material";
 import { jsPDF } from "jspdf";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Firebase imports
+import { useUserStore } from "../../store";
 
 interface Products {
   name: string;
@@ -17,6 +19,7 @@ interface Props {
 }
 
 export const BillGenerator = ({ products, totalToPay }: Props) => {
+  const { user } = useUserStore();
   const generatePDF = async () => {
     const doc = new jsPDF();
     doc.setFontSize(22);
@@ -26,18 +29,17 @@ export const BillGenerator = ({ products, totalToPay }: Props) => {
     doc.setLineWidth(0.5);
     doc.line(10, 37, 200, 37);
 
-    const margin = 10; // Margen
-    const productWidth = 90; // Ancho de cada producto
+    const margin = 10;
+    const productWidth = 90;
 
-    let yPosition = 45; // Posición inicial
+    let yPosition = 45;
 
     const promises: Promise<void>[] = products.map(async (item, index) => {
       const imgData = await getBase64Image(item.image);
-      const column = index % 2; // Determinar la columna (0 o 1)
-      const xPosition = 10 + column * (productWidth + margin); // Calcular posición X
+      const column = index % 2;
+      const xPosition = 10 + column * (productWidth + margin);
 
-      // Agregar la imagen del producto
-      doc.addImage(imgData, "JPEG", xPosition, yPosition, 30, 30); // Ajustar tamaño de la imagen
+      doc.addImage(imgData, "JPEG", xPosition, yPosition, 30, 30);
       doc.text(`Producto: ${item.name}`, xPosition + 40, yPosition + 10);
       doc.text(`Cantidad: ${item.quantity}`, xPosition + 40, yPosition + 20);
       doc.text(
@@ -46,27 +48,34 @@ export const BillGenerator = ({ products, totalToPay }: Props) => {
         yPosition + 30
       );
 
-      // Línea de separación para cada producto
       doc.setLineWidth(0.5);
-      doc.line(10, yPosition + 35, 200, yPosition + 35); // Línea de separación
+      doc.line(10, yPosition + 35, 200, yPosition + 35);
 
-      // Calcular la posición Y para el siguiente producto
-      yPosition += index % 2 === 1 ? 40 : 0; // Solo avanzar si es el segundo producto en la fila
+      yPosition += index % 2 === 1 ? 40 : 0;
     });
 
     await Promise.all(promises);
 
-    // Añadir el total a pagar
     doc.setFontSize(16);
     doc.text(`Total a pagar: $${totalToPay.toFixed(2)}`, 10, yPosition + 10);
     doc.setLineWidth(0.5);
-    doc.line(10, yPosition + 15, 200, yPosition + 15); // Línea final
+    doc.line(10, yPosition + 15, 200, yPosition + 15);
 
-    // Descargar el PDF
-    doc.save("factura.pdf");
+    const pdfBlob = doc.output("blob");
 
-    // Enviar mensaje de WhatsApp (opcional)
-    sendToWhatsApp("+50575312307", "Aquí está su factura.");
+    const storage = getStorage();
+    const storageRef = ref(
+      storage,
+      `facturas/factura-${user?.displayName}-${Date.now()}.pdf`
+    );
+    await uploadBytes(storageRef, pdfBlob);
+
+    const downloadURL = await getDownloadURL(storageRef);
+
+    sendToWhatsApp(
+      import.meta.env.VITE_WHATSAPP_NUMBER,
+      `Hola! me gustaria comprar estos productos. Te dejo acá mi factura✅: ${downloadURL}`
+    );
   };
 
   const getBase64Image = async (url: string): Promise<string> => {
