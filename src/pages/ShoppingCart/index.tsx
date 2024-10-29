@@ -1,15 +1,20 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Input, Typography } from "@mui/material";
 import {
   useShoppingCartStore,
   useUserAddressStore,
   useUserStore,
 } from "../../store";
 import { ProductBanner } from "./components/ProductBanner";
-import { BillGenerator, CheckboxGroup } from "../../components";
+import { BillGenerator } from "../../components";
 import { useGetUserAddress } from "../../services";
 import { IUserAddress } from "../../interfaces";
+import { useState } from "react";
+
+import { SlideAddress } from "./components/SlideAddress";
 
 export const ShoppingCart = () => {
+  const [newAddressToAdd, setNewAddressToAdd] = useState(false);
+  const [newAddress, setNewAddress] = useState("");
   const { address: userAddressToSave, setAdress } = useUserAddressStore();
 
   const handleChange = (newSelection: string) => {
@@ -81,23 +86,42 @@ export const ShoppingCart = () => {
         <Typography>Email: {user?.email}</Typography>
         <Typography>Total: $ {totalToPay}</Typography>
 
-        {filteredAddressByUserId?.map((address: IUserAddress) => (
-          <Box key={address.name}>
+        {!newAddressToAdd ? (
+          <Box sx={{ width: "100%" }}>
             <Typography>Direcciones:</Typography>
-            {address.fields.Direcciones.arrayValue.values.map(
-              (direccion: { stringValue: string }, index: number) => (
-                <CheckboxGroup
-                  key={index}
-                  option={direccion.stringValue}
-                  onChange={handleChange}
-                  selectedCheckbox={userAddressToSave}
-                />
-              )
-            )}
-            <Typography>Ciudad: {address.fields.Ciudad.stringValue}</Typography>
-            <Typography>Estado: {address.fields.Estado.stringValue}</Typography>
+            <Box
+              sx={{
+                width: "100%",
+
+                display: "flex",
+                gap: "1rem",
+              }}
+            >
+              <SlideAddress
+                address={filteredAddressByUserId}
+                handleChange={handleChange}
+                userAddressToSave={userAddressToSave}
+              />
+            </Box>
+
+            <Button onClick={() => setNewAddressToAdd(true)}>
+              Agregar nueva direccion
+            </Button>
           </Box>
-        ))}
+        ) : (
+          <Box>
+            <Typography>Direcciones:</Typography>
+
+            <Input
+              value={newAddress}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setNewAddress(e.target.value)
+              }
+            />
+
+            <Button onClick={() => alert("Hola")}>Agregar</Button>
+          </Box>
+        )}
 
         <BillGenerator products={cart} totalToPay={Number(totalToPay)} />
       </Box>
