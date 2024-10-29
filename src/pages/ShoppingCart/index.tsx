@@ -1,4 +1,4 @@
-import { Box, Button, Input, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import {
   useShoppingCartStore,
   useUserAddressStore,
@@ -11,21 +11,29 @@ import { IUserAddress } from "../../interfaces";
 import { useState } from "react";
 
 import { SlideAddress } from "./components/SlideAddress";
+import { useCreateOrReadAddress } from "./hooks/useCreateOrReadAddress";
+import { AddAddressForm } from "./components/AddAddressForm";
 
 export const ShoppingCart = () => {
   const [newAddressToAdd, setNewAddressToAdd] = useState(false);
-  const [newAddress, setNewAddress] = useState("");
+  const [isLoadingAddAddress, setIsLoadingAddAddress] = useState(false);
   const { address: userAddressToSave, setAdress } = useUserAddressStore();
+
+  const { data: userAddress, refetch: refetchAddresses } = useGetUserAddress();
+  const { formik } = useCreateOrReadAddress();
+  const { cart } = useShoppingCartStore();
+  const { user } = useUserStore();
 
   const handleChange = (newSelection: string) => {
     setAdress(newSelection);
   };
 
-  const { cart } = useShoppingCartStore();
-  const { user } = useUserStore();
-
-  const { data: userAddress } = useGetUserAddress();
   const totalToPay = cart.reduce((acc, p) => acc + p.total, 0).toFixed(2);
+
+  const filteredAddressByUserId = userAddress?.filter(
+    (address: IUserAddress) =>
+      address.fields.IdUsuario.stringValue === user?.uid
+  );
 
   if (!cart.length) {
     return (
@@ -34,11 +42,6 @@ export const ShoppingCart = () => {
       </Box>
     );
   }
-
-  const filteredAddressByUserId = userAddress?.filter(
-    (address: IUserAddress) =>
-      address.fields.IdUsuario.stringValue === user?.uid
-  );
 
   return (
     <Box
@@ -50,7 +53,6 @@ export const ShoppingCart = () => {
         gap: { xs: "1rem", md: "0" },
       }}
     >
-      {/* <Button onClick={clearCart}>Clear</Button> */}
       <Box
         sx={{
           width: "50%",
@@ -86,13 +88,20 @@ export const ShoppingCart = () => {
         <Typography>Email: {user?.email}</Typography>
         <Typography>Total: $ {totalToPay}</Typography>
 
-        {!newAddressToAdd ? (
+        {newAddressToAdd || filteredAddressByUserId?.length === 0 ? (
+          <AddAddressForm
+            formik={formik}
+            isLoadingAddAddress={isLoadingAddAddress}
+            refetchAddresses={refetchAddresses}
+            setIsLoadingAddAddress={setIsLoadingAddAddress}
+            setNewAddressToAdd={setNewAddressToAdd}
+          />
+        ) : (
           <Box sx={{ width: "100%" }}>
             <Typography>Direcciones:</Typography>
             <Box
               sx={{
                 width: "100%",
-
                 display: "flex",
                 gap: "1rem",
               }}
@@ -105,25 +114,18 @@ export const ShoppingCart = () => {
             </Box>
 
             <Button onClick={() => setNewAddressToAdd(true)}>
-              Agregar nueva direccion
+              Agregar nueva dirección
             </Button>
-          </Box>
-        ) : (
-          <Box>
-            <Typography>Direcciones:</Typography>
-
-            <Input
-              value={newAddress}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setNewAddress(e.target.value)
-              }
-            />
-
-            <Button onClick={() => alert("Hola")}>Agregar</Button>
           </Box>
         )}
 
-        <BillGenerator products={cart} totalToPay={Number(totalToPay)} />
+        {filteredAddressByUserId?.length > 0 && !newAddressToAdd && (
+          <BillGenerator products={cart} totalToPay={Number(totalToPay)} />
+        )}
+
+        {newAddressToAdd && (
+          <Button onClick={() => setNewAddressToAdd(false)}>Cancelar</Button>
+        )}
       </Box>
 
       <Box

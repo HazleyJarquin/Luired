@@ -57,6 +57,9 @@ export const MenuItemNavbarMobile = ({
           sx={{
             backgroundColor: "transparent",
             color: "black",
+            "&:hover": {
+              backgroundColor: "transparent !important",
+            },
           }}
         >
           <MenuIcon />
